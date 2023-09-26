@@ -2,8 +2,10 @@
 <div class="floor">
   <div class="elevatorСabin" :class="isActive ? 'active': null" >
     <div class="scoreboard">
-      <span></span>
-      <span>{{ targetFloor }}</span>
+      <div v-if="direction">
+        <i :class="direction ? 'bi bi-arrow-up-circle': 'bi bi-arrow-down-circle'"></i>
+      </div>
+      <span v-if=isActive >{{ targetFloor }}</span>
     </div>
   </div>
   <button
@@ -27,7 +29,10 @@ export default {
     targetFloor: {
       type: Number
     },
-    isActive : {
+    isActive: {
+      type: Boolean
+    },
+    direction: {
       type: Boolean
     }
   },
@@ -53,6 +58,9 @@ export default {
       width: 100px;
       height: 70px;
       background-color: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
   .buttonDefault {

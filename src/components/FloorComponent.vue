@@ -1,12 +1,18 @@
 <template>
 <div class="floor">
-  <div class="elevatorСabin">
+  <div class="elevatorСabin" :class="isActive ? 'active': null" >
     <div class="scoreboard">
       <span></span>
       <span>{{ targetFloor }}</span>
     </div>
   </div>
-  <button class="buttonDefault">{{ floorNumber }}</button>
+  <button
+      class="buttonDefault"
+      @click="$emit('call',floorNumber)"
+  >
+    {{ floorNumber }}
+    <div class="circle"></div>
+  </button>
 </div>
 </template>
 
@@ -20,8 +26,12 @@ export default {
     },
     targetFloor: {
       type: Number
+    },
+    isActive : {
+      type: Boolean
     }
-  }
+  },
+  emits: ['call']
 }
 </script>
 
@@ -29,13 +39,16 @@ export default {
 .floor {
   display: flex;
   gap:20px;
+
   .elevatorСabin {
+    border: 1px solid gray;
     width: 250px;
     height: 200px;
-    background-color: #282828;
+    background-color: rgba(192, 180, 180, 0.98);
     display: flex;
     align-items: center;
     justify-content: center;
+
     .scoreboard {
       width: 100px;
       height: 70px;
@@ -43,10 +56,31 @@ export default {
     }
   }
   .buttonDefault {
+    display: flex;
+    gap: 5px;
+    font-size: 20px;
     border: none;
     width: 100px;
-    height: 30px;
+    height: 50px;
     align-self: center;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    .circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 10px;
+      border: 1px solid black;
+      background-color: green;
+    }
+
+    &:hover {
+      box-shadow: 10px 5px 5px rgba(174, 197, 227, 0.47);
+    }
+  }
+  .active {
+    background-color: #2c3e50;
   }
 }
 </style>

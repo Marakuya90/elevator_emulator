@@ -1,94 +1,67 @@
 <template>
 <div class="floor">
-  <div class="elevatorСabin" :class="isActive ? 'active': null" >
-    <div class="scoreboard">
-      <div v-if="direction">
-        <i :class="direction ? 'bi bi-arrow-up-circle': 'bi bi-arrow-down-circle'"></i>
+    <div class="elevatorСabin" :class="isActive ? 'active': null" >
+      <div class="scoreboard" v-if=isActive>
+        <div v-if="DIRECTION != null">
+          <i v-if="DIRECTION === 'up'" class='bi bi-arrow-up-circle'></i>
+          <i v-else class='bi bi-arrow-down-circle'></i>
+        </div>
+        <span>{{ NEW_ACTIVE_FLOOR }}</span>
       </div>
-      <span v-if=isActive >{{ targetFloor }}</span>
     </div>
-  </div>
-  <button
-      class="buttonDefault"
-      @click="$emit('call',floorNumber)"
-  >
-    {{ floorNumber }}
-    <div class="circle"></div>
-  </button>
 </div>
 </template>
 
 <script>
+import {mapGetters} from "vuex";
+
 export default {
   name: "FloorComponent",
   props: {
-    floorNumber: {
-      type: Number,
-      required: true
-    },
-    targetFloor: {
-      type: Number
-    },
     isActive: {
-      type: Boolean
-    },
-    direction: {
       type: Boolean
     }
   },
-  emits: ['call']
+  computed: {
+    ...mapGetters('firstElevator',['NEW_ACTIVE_FLOOR','DIRECTION']),
+  }
 }
 </script>
 
 <style scoped lang="scss">
-.floor {
-  display: flex;
-  gap:20px;
 
   .elevatorСabin {
-    border: 1px solid gray;
     width: 250px;
     height: 200px;
-    background-color: rgba(192, 180, 180, 0.98);
+    background-color: rgba(174, 197, 227, 0.47);
     display: flex;
     align-items: center;
     justify-content: center;
-
     .scoreboard {
       width: 100px;
       height: 70px;
       background-color: #f8f8f8;
+      color: cornflowerblue;
+      font-size: 27px;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-  }
-  .buttonDefault {
-    display: flex;
-    gap: 5px;
-    font-size: 20px;
-    border: none;
-    width: 100px;
-    height: 50px;
-    align-self: center;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-
-    .circle {
-      width: 15px;
-      height: 15px;
-      border-radius: 10px;
-      border: 1px solid black;
-      background-color: green;
-    }
-
-    &:hover {
-      box-shadow: 10px 5px 5px rgba(174, 197, 227, 0.47);
+      gap:7px
     }
   }
   .active {
-    background-color: #2c3e50;
+    animation: blink 1s 1;
+    animation-timing-function: ease-out;
+    animation-direction: alternate;
+    background-color: #3587D7FF;
   }
-}
+  @keyframes blink {
+    from {
+      background-color: rgba(174, 197, 227, 0.47);
+    }
+    to {
+      background-color: #3587D7A9;
+    }
+  }
 </style>

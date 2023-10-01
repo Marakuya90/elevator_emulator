@@ -9,10 +9,10 @@
           v-for="(button, i) in GET_FLOORS"
           :key="`btn-${i}`"
           class="buttonDefault"
-          @click="elevatorCall(button)">
+          @click="action(button)">
         {{ button }}
         <div
-            :class="button === GET_NEW_ACTIVE_FLOOR & GET_IS_BUSY ? 'colorBlink' : null"
+            :class="button === GET_NEW_ACTIVE_FLOOR & !GET_VACANT ? 'colorBlink' : null"
             class="circle">
         </div>
       </button>
@@ -27,84 +27,58 @@ import {mapActions, mapGetters, mapMutations} from 'vuex'
 export default {
   name: 'App',
   components: {ElevatorShaft},
+  data() {
+    return {
+      queue: []
+    }
+  },
   computed: {
-    ...mapGetters('firstElevator', ['GET_ACTIVE_FLOOR', 'GET_NEW_ACTIVE_FLOOR', "GET_IS_BUSY"]),
+    ...mapGetters('firstElevator', ['GET_ACTIVE_FLOOR', 'GET_NEW_ACTIVE_FLOOR', "GET_VACANT"]),
     ...mapGetters(['GET_ELEVATORS', 'GET_FLOORS', 'GET_QUEUE']),
 
-    // elevatorCall() {
-    //   return this.createQueue((e) => {
-    //     console.log("start", e);
-    //     return new Promise((resolve) => {
-    //       this.CHANGE_FLOOR(e)
-    //       setTimeout(() => {
-    //         this.ADD_TASK(e);
-    //         console.log("end", e);
-    //         resolve();
-    //       }, 1000);
-    //     });
-    //   });
+    // action() {
+    //   return this.createQueue((button) => this.CHANGE_FLOOR(button))
     // },
-    changeFloorUp(toFloorPX) {
-      return createQueue((resolve) => {
-        let floor = this.bottom;
-
-        if (this.bottom < toFloorPX) {
-          let timerUp = setInterval(() => {
-            this.up = true;
-
-            if (this.bottom !== toFloorPX) {
-              floor += 2;
-            } else if (this.bottom === toFloorPX) {
-              this.up = false;
-              clearInterval(timerUp);
-              this.bottom = floor;
-              return resolve();
+    action() {
+      return this.createQueue((floor) => {
+        return new Promise((resolve) => {
+          let interval = setInterval(() => {
+            if (this.GET_ACTIVE_FLOOR < floor) {
+              this.INCREMENT()
+            } else if (this.GET_ACTIVE_FLOOR > floor) {
+              this.DECREMENT()
+            } else if (this.GET_ACTIVE_FLOOR === floor) {
+              clearInterval(interval)
+              return resolve()
             }
-
-            this.bottom = floor;
-          }, 20);
-        } else if (this.bottom > toFloorPX) {
-          let timerDown = setInterval(() => {
-            this.down = true;
-
-            if (this.bottom !== toFloorPX) {
-              floor -= 2;
-            } else if (this.bottom === toFloorPX) {
-              this.down = false;
-              clearInterval(timerDown);
-              this.bottom = floor;
-              return resolve();
-            }
-
-            this.bottom = floor;
-          }, 20);
-        }
-      });
+          }, 1000)
+        })
+      })
     },
   },
   methods: {
-    ...mapMutations(['ADD_TASK']),
-    ...mapMutations('firstElevator', ['INCREMENT', 'DECREMENT', 'CLEAR_INTERVAL', 'SET_NEW_ACTIVE_FLOOR']),
+    ...mapMutations(['SHIFT_QUEUE', 'PUSH_QUEUE']),
+    ...mapMutations('firstElevator', ['INCREMENT', 'DECREMENT', 'CLEAR_INTERVAL', 'SET_NEW_ACTIVE_FLOOR', 'SET_VACANT']),
     ...mapActions('firstElevator', ['CHANGE_FLOOR']),
+    ...mapActions(['GET_SHIFT_VALUE']),
 
-    createQueue(foo) {
-      const queue = []
-      this.GET_IS_BUSY = true;
-
+    createQueue(func) {
+      // const queue = []
+      let vacant = false
       const start = () => {
-        if (!this.GET_IS_BUSY) this.GET_IS_BUSY = false
-        const params = queue.shift()
+        if (!vacant) vacant = true
+        const values = this.queue.shift()
 
-        foo(...params).then(() => {
-          this.GET_IS_BUSY = true;
-          if (queue.length) start()
+        func(...values).then(() => {
+          vacant = false
+          if (this.queue.length) start()
         })
       }
 
       return (...params) => {
-        queue.push(params)
-
-        if (!this.GET_IS_BUSY) start()
+        console.log(...params)
+        this.queue.push(params)
+        if (!vacant) start()
       }
     }
 

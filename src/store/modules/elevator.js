@@ -7,8 +7,8 @@ export default {
                 newActiveFloor: 1,
                 toggleColor: false,
                 isActive: false,
-                interval_timer: [],
-                isBusy: false,
+                interval_timer: null,
+                vacant: false,
                 direction: null
         }
     },
@@ -23,8 +23,11 @@ export default {
         GET_DIRECTION(state) {
             return state.direction
         },
-        GET_IS_BUSY(state) {
-            return state.isBusy
+        GET_VACANT(state) {
+            return state.vacant
+        },
+        GET_INTERVAL_TIMER(state) {
+            return state.interval_timer
         }
 
     },
@@ -46,23 +49,53 @@ export default {
 
         SET_NEW_ACTIVE_FLOOR(state, payload) {
             state.newActiveFloor = payload
-        }
+        },
+
+        SET_VACANT(state, payload) {
+            state.vacant = payload
+        },
+
+
     },
     actions: {
 
-        CHANGE_FLOOR({commit,state},payload) {
+         CHANGE_FLOOR({commit,state},payload) {
 
-                state.interval_timer = setInterval(() => {
-                if (state.activeFloor < payload) {
-                    commit('INCREMENT')
-                }
-                else if (state.activeFloor > payload) {
-                    commit('DECREMENT')
-                }
-                else if (state.activeFloor === payload) {
-                    commit('CLEAR_INTERVAL')
-                }
-            },1000)
+             new Promise ((resolve) => {
+                 state.interval_timer = setInterval(() => {
+                     if (state.activeFloor < payload) {
+                         commit('INCREMENT')
+                     }
+                     else if (state.activeFloor > payload) {
+                         commit('DECREMENT')
+                     }
+                     else if (state.activeFloor === payload) {
+                         commit('CLEAR_INTERVAL')
+                         return resolve()
+                     }
+                 },1000)
+             })
         }
+
+        // SET_QUEUE({state, commit, rootState}) {
+        //     state.firstShaft.interval_timer = setInterval(() => {
+        //         if (state.firstShaft.activeFloor < rootState.queue[0]) {
+        //             commit('INCREMENT')
+        //         } else if (state.firstShaft.activeFloor === state.firstShaft.newActiveFloor) {
+        //             commit('CLEAR_INTERVAL')
+        //         }
+        //
+        //         if (state.firstShaft.activeFloor > state.firstShaft.newActiveFloor) {
+        //             commit('DECREMENT')
+        //         } else if (state.firstShaft.activeFloor === state.firstShaft.newActiveFloor) {
+        //             commit('DELETE_TASK', rootState.queue[0], {root: true})
+        //             commit('CLEAR_INTERVAL')
+        //             setTimeout(() => {
+        //                 state.firstShaft.isBusy = false
+        //             }, 3000)
+        //         }
+        //     }, 1000)
+        // },
+
     }
 }

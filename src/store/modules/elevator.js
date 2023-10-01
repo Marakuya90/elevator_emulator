@@ -3,73 +3,63 @@ export default {
     namespaced:true,
     state() {
         return {
-            firstShaft: {
-                floors: [1, 2, 3, 4, 5],
                 activeFloor: 1,
                 newActiveFloor: 1,
                 toggleColor: false,
                 isActive: false,
                 interval_timer: [],
+                isBusy: false,
                 direction: null
-            }
         }
     },
     getters: {
-        FLOORS(state) {
-            return state.firstShaft.floors
+
+        GET_ACTIVE_FLOOR(state) {
+            return state.activeFloor
         },
-        ACTIVE_FLOOR(state) {
-            return state.firstShaft.activeFloor
+        GET_NEW_ACTIVE_FLOOR(state) {
+            return state.newActiveFloor
         },
-        NEW_ACTIVE_FLOOR(state) {
-            return state.firstShaft.newActiveFloor
+        GET_DIRECTION(state) {
+            return state.direction
         },
-        DIRECTION(state) {
-            return state.firstShaft.direction
-        },
-        TOGGLE_COLOR(state) {
-            return state.firstShaft.toggleColor
+        GET_IS_BUSY(state) {
+            return state.isBusy
         }
+
     },
     mutations: {
         INCREMENT(state) {
-            state.firstShaft.direction = 'up'
-            state.firstShaft.activeFloor++
+            state.direction = 'up'
+            state.activeFloor++
         },
 
         DECREMENT(state) {
-            state.firstShaft.direction = 'down'
-            state.firstShaft.activeFloor--
+            state.direction = 'down'
+            state.activeFloor--
         },
 
         CLEAR_INTERVAL(state) {
-            clearInterval(state.firstShaft.interval_timer)
-            state.firstShaft.direction = null
+            clearInterval(state.interval_timer)
+            state.direction = null
         },
 
         SET_NEW_ACTIVE_FLOOR(state, payload) {
-            state.firstShaft.newActiveFloor = payload
-        },
-
-        SET_TOGGLE_COLOR(state) {
-            state.firstShaft.toggleColor = true
+            state.newActiveFloor = payload
         }
     },
     actions: {
 
-        CHANGE_FLOOR({commit,state}) {
+        CHANGE_FLOOR({commit,state},payload) {
 
-                state.firstShaft.interval_timer = setInterval(() => {
-                if (state.firstShaft.activeFloor < state.firstShaft.newActiveFloor) {
-                    state.firstShaft.toggleColor = true
+                state.interval_timer = setInterval(() => {
+                if (state.activeFloor < payload) {
                     commit('INCREMENT')
                 }
-                else if (state.firstShaft.activeFloor > state.firstShaft.newActiveFloor) {
-                    state.firstShaft.toggleColor = true
+                else if (state.activeFloor > payload) {
                     commit('DECREMENT')
                 }
-                else if (state.firstShaft.activeFloor === state.firstShaft.newActiveFloor) {
-                    state.firstShaft.toggleColor = false
+                else if (state.activeFloor === payload) {
                     commit('CLEAR_INTERVAL')
                 }
             },1000)

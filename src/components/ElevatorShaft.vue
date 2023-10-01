@@ -2,9 +2,9 @@
   <div class="elevatorShaft">
     <div
       class="floor"
-      v-for="(i) in FLOORS"
+      v-for="(i) in GET_FLOORS"
       :key = i>
-      <floor-component :is-active="this.ACTIVE_FLOOR === i">
+      <floor-component :is-active="this.GET_ACTIVE_FLOOR === i">
       </floor-component>
     </div>
   </div>
@@ -18,7 +18,8 @@ export default {
   name: "ElevatorShaft",
   components: {FloorComponent},
   computed: {
-    ...mapGetters('firstElevator',['FLOORS','ACTIVE_FLOOR']),
+    ...mapGetters('firstElevator',['GET_ACTIVE_FLOOR']),
+    ...mapGetters(['GET_FLOORS'])
   }
 }
 </script>

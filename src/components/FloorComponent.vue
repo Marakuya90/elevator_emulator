@@ -2,11 +2,11 @@
 <div class="floor">
     <div class="elevatorСabin" :class="isActive ? 'active': null" >
       <div class="scoreboard" v-if=isActive>
-        <div v-if="DIRECTION != null">
-          <i v-if="DIRECTION === 'up'" class='bi bi-arrow-up-circle'></i>
+        <div v-if="GET_DIRECTION != null">
+          <i v-if="GET_DIRECTION === 'up'" class='bi bi-arrow-up-circle'></i>
           <i v-else class='bi bi-arrow-down-circle'></i>
         </div>
-        <span>{{ NEW_ACTIVE_FLOOR }}</span>
+        <span>{{ GET_NEW_ACTIVE_FLOOR }}</span>
       </div>
     </div>
 </div>
@@ -23,7 +23,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('firstElevator',['NEW_ACTIVE_FLOOR','DIRECTION']),
+    ...mapGetters('firstElevator',['GET_NEW_ACTIVE_FLOOR','GET_DIRECTION']),
   }
 }
 </script>

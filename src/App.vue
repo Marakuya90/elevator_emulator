@@ -13,8 +13,8 @@
           :disabled="GET_PENDING">
         {{ button }}
         <div
-            :class="[GET_PENDING ? 'queue': '',
-            button === this.GET_NEW_ACTIVE_FLOOR && button !== this.GET_ACTIVE_FLOOR? 'colorBlink':'']"
+            :class="[ GET_PENDING ? 'queue': '',
+            button === GET_NEW_ACTIVE_FLOOR && button !== GET_ACTIVE_FLOOR ? 'colorBlink':'']"
             class="circle">
         </div>
       </button>
@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     ...mapMutations('firstElevator', ['INCREMENT', 'DECREMENT', 'SET_NEW_ACTIVE_FLOOR', 'SET_PENDING', 'SET_ACTIVE_FLOOR']),
-
     createQueue(func) {
       let vacant = false
       const start = () => {
@@ -60,7 +59,6 @@ export default {
   computed: {
     ...mapGetters('firstElevator', ['GET_ACTIVE_FLOOR', 'GET_NEW_ACTIVE_FLOOR', 'GET_PENDING']),
     ...mapGetters(['GET_ELEVATORS', 'GET_FLOORS']),
-
     elevatorCall() {
       return this.createQueue((floor) => {
         return new Promise((resolve) => {

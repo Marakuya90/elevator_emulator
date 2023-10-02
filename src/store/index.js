@@ -10,7 +10,7 @@ export default createStore({
         return {
             queue: [],
             floors: 5,
-            elevators: 3
+            elevators: 1
         }
     },
     getters: {
@@ -22,23 +22,6 @@ export default createStore({
         },
         GET_ELEVATORS(state) {
             return state.elevators
-        }
-
-    },
-
-    mutations: {
-        PUSH_QUEUE(state, payload) {
-            state.queue.push(payload)
-        },
-
-        SHIFT_QUEUE(state) {
-            state.queue.shift()
-        }
-    },
-
-    actions: {
-        GET_SHIFT_VALUE({commit}) {
-            return commit('SHIFT_QUEUE')
         }
     }
 })

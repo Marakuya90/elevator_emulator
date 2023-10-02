@@ -9,10 +9,12 @@
           v-for="(button, i) in GET_FLOORS"
           :key="`btn-${i}`"
           class="buttonDefault"
-          @click="action(button)">
+          @click="elevatorCall(button)"
+          :disabled="GET_PENDING">
         {{ button }}
         <div
-            :class="button === GET_NEW_ACTIVE_FLOOR & !GET_VACANT ? 'colorBlink' : null"
+            :class="[GET_PENDING ? 'queue': '',
+            button === this.GET_NEW_ACTIVE_FLOOR && button !== this.GET_ACTIVE_FLOOR? 'colorBlink':'']"
             class="circle">
         </div>
       </button>
@@ -22,7 +24,7 @@
 
 <script>
 import ElevatorShaft from "@/components/ElevatorShaft.vue";
-import {mapActions, mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'App',
@@ -32,80 +34,52 @@ export default {
       queue: []
     }
   },
-  computed: {
-    ...mapGetters('firstElevator', ['GET_ACTIVE_FLOOR', 'GET_NEW_ACTIVE_FLOOR', "GET_VACANT"]),
-    ...mapGetters(['GET_ELEVATORS', 'GET_FLOORS', 'GET_QUEUE']),
+  methods: {
+    ...mapMutations('firstElevator', ['INCREMENT', 'DECREMENT', 'SET_NEW_ACTIVE_FLOOR', 'SET_PENDING', 'SET_ACTIVE_FLOOR']),
 
-    // action() {
-    //   return this.createQueue((button) => this.CHANGE_FLOOR(button))
-    // },
-    action() {
+    createQueue(func) {
+      let vacant = false
+      const start = () => {
+        if (!vacant) vacant = true
+        const values = this.queue.shift()
+        func(...values).then(() => {
+          this.SET_PENDING(true)
+          setTimeout(() => {
+            vacant = false
+            this.SET_PENDING(false)
+          }, 3000)
+          if (this.queue.length) start()
+        })
+      }
+      return (...params) => {
+        this.queue.push(params)
+        if (!vacant) start()
+      }
+    }
+  },
+  computed: {
+    ...mapGetters('firstElevator', ['GET_ACTIVE_FLOOR', 'GET_NEW_ACTIVE_FLOOR', 'GET_PENDING']),
+    ...mapGetters(['GET_ELEVATORS', 'GET_FLOORS']),
+
+    elevatorCall() {
       return this.createQueue((floor) => {
         return new Promise((resolve) => {
           let interval = setInterval(() => {
+            this.SET_NEW_ACTIVE_FLOOR(floor)
             if (this.GET_ACTIVE_FLOOR < floor) {
               this.INCREMENT()
             } else if (this.GET_ACTIVE_FLOOR > floor) {
               this.DECREMENT()
             } else if (this.GET_ACTIVE_FLOOR === floor) {
+              this.SET_ACTIVE_FLOOR(this.GET_NEW_ACTIVE_FLOOR)
               clearInterval(interval)
               return resolve()
             }
           }, 1000)
         })
       })
-    },
-  },
-  methods: {
-    ...mapMutations(['SHIFT_QUEUE', 'PUSH_QUEUE']),
-    ...mapMutations('firstElevator', ['INCREMENT', 'DECREMENT', 'CLEAR_INTERVAL', 'SET_NEW_ACTIVE_FLOOR', 'SET_VACANT']),
-    ...mapActions('firstElevator', ['CHANGE_FLOOR']),
-    ...mapActions(['GET_SHIFT_VALUE']),
-
-    createQueue(func) {
-      // const queue = []
-      let vacant = false
-      const start = () => {
-        if (!vacant) vacant = true
-        const values = this.queue.shift()
-
-        func(...values).then(() => {
-          vacant = false
-          if (this.queue.length) start()
-        })
-      }
-
-      return (...params) => {
-        console.log(...params)
-        this.queue.push(params)
-        if (!vacant) start()
-      }
     }
-
-    // elevatorCall(e) {
-    //   if (!this.GET_QUEUE.includes(e) || this.GET_ACTIVE_FLOOR !== e)
-    //     this.ADD_TASK(e)
-    // }
   }
-  // watch: {
-  //   queue: {
-  //     handler(val, oldVal) {
-  //       if (val.length > oldVal.length) {
-  //         let a = true
-  //         val.splice(0, val.length - oldVal.length)
-  //         let floor = val[0]
-  //         while (a) {
-  //           if (!this.IS_BUSY) {
-  //             this.CHANGE_FLOOR(floor)
-  //             a = false
-  //             let index = this.queue.findIndex((elem) => elem === floor)
-  //             this.queue.splice(index, 1)
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 }
 </script>
 
@@ -125,8 +99,9 @@ export default {
 
 .buttonDefault {
   display: flex;
-  gap: 5px;
-  font-size: 20px;
+  gap: 7px;
+  font-size: 22px;
+  font-weight: bold;
   border: none;
   width: 100px;
   height: 50px;
@@ -136,11 +111,11 @@ export default {
   cursor: pointer;
 
   .circle {
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
     border-radius: 10px;
-    border: 1px solid black;
     background-color: green;
+    box-shadow: 0 0 10px 2px rgba(255, 255, 0, .7);
   }
 
   &:hover {
@@ -152,12 +127,27 @@ export default {
     animation-timing-function: ease-out;
   }
 
+  .queue {
+    animation: queue 0.5s infinite;
+    animation-timing-function: ease-out;
+  }
+
   @keyframes colorBlink {
     from {
       background-color: green;
     }
     to {
       background-color: red;
+    }
+  }
+
+  @keyframes queue {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+      background-color: yellow;
     }
   }
 }
